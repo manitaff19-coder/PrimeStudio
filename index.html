@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRIME STUDIO | Invite Bot</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-green: #22ff22;
+            --glow-color: rgba(34, 255, 34, 0.8);
+            --bg-color: #050505;
+            --header-bg: rgba(0, 0, 0, 0.95);
+            --card-bg: rgba(20, 20, 20, 0.85);
+            --text-color: #ffffff;
+            --menu-bg: #0f111a;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        #snow-canvas { position: fixed; top: 0; left: 0; pointer-events: none; z-index: 1; }
+
+        header {
+            height: 70px;
+            background: var(--header-bg);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(34, 255, 34, 0.2);
+            display: flex;
+            align-items: center;
+            padding: 0 5%;
+        }
+
+        .menu-btn {
+            font-size: 30px;
+            cursor: pointer;
+            color: var(--text-color);
+            user-select: none;
+            line-height: 1;
+            padding: 10px;
+            border: none !important;
+            outline: none !important;
+            background: none !important;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .header-logo-container {
+            margin-right: auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        body.ltr .header-logo-container { margin-right: 0; margin-left: auto; }
+
+        .header-logo-container img { width: 40px; height: 40px; border-radius: 8px; }
+        .glow-text { color: var(--primary-green); text-shadow: 0 0 10px var(--glow-color); font-weight: bold; font-size: 1.2rem; }
+
+        .side-menu {
+            position: fixed;
+            top: 0;
+            right: -320px;
+            width: 300px;
+            height: 100%;
+            background: var(--menu-bg);
+            z-index: 2000;
+            padding: 30px 20px;
+            transition: 0.4s ease;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.8);
+        }
+        .side-menu.active { right: 0; }
+        body.ltr .side-menu { right: auto; left: -320px; }
+        body.ltr .side-menu.active { left: 0; }
+
+        .menu-item {
+            background: rgba(255,255,255,0.05);
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-decoration: none;
+            color: inherit;
+        }
+        .menu-item:hover { background: rgba(34, 255, 34, 0.1); border: 1px solid var(--primary-green); }
+
+        .content-section { display: none; padding: 40px 6%; position: relative; z-index: 2; animation: fadeIn 0.4s ease; }
+        .content-section.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .hero h1 { font-size: 3rem; margin-bottom: 10px; }
+        .btn-main { background: var(--primary-green); color: #000; padding: 16px 32px; border-radius: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; font-weight: bold; margin-top: 20px; box-shadow: 0 5px 15px rgba(34, 255, 34, 0.3); }
+
+        /* تنسيق كروت المميزات مع الأيقونات */
+        .f-card { 
+            background: var(--card-bg); 
+            padding: 30px; 
+            border-radius: 20px; 
+            border: 1px solid rgba(255,255,255,0.08); 
+            margin-bottom: 25px; 
+            position: relative;
+            transition: 0.3s;
+        }
+        .f-card:hover { border-color: var(--primary-green); transform: translateY(-5px); }
+        .f-card i { font-size: 2.5rem; color: var(--primary-green); margin-bottom: 15px; display: block; }
+        .f-card h3 { font-size: 1.5rem; margin-bottom: 10px; color: var(--text-color); }
+        .f-card p { font-size: 1rem; opacity: 0.8; line-height: 1.6; }
+
+        .rule-item { padding: 15px; border-bottom: 1px solid rgba(34, 255, 34, 0.1); display: flex; gap: 15px; }
+        .rule-num { color: var(--primary-green); font-weight: bold; }
+
+        .lang-trigger { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+        .lang-dropdown { display: none; background: #161925; border-radius: 12px; margin-top: 8px; overflow: hidden; border: 1px solid rgba(34, 255, 34, 0.2); }
+        .lang-dropdown.active { display: block; }
+        .lang-opt { padding: 12px 20px; cursor: pointer; transition: 0.2s; }
+        .lang-opt:hover { background: var(--primary-green); color: #000; }
+    </style>
+</head>
+<body>
+
+<canvas id="snow-canvas"></canvas>
+
+<header>
+    <div class="menu-btn" onclick="toggleMenu()">☰</div>
+    <div class="header-logo-container">
+        <span class="glow-text">PRIME STUDIO</span>
+        <img src="logo.png" alt="Logo">
+    </div>
+</header>
+
+<section id="home" class="content-section active">
+    <h1 data-key="homeTitle">Invite Bot</h1>
+    <p data-key="homeDesc">استمتع بأداء فائق و سريع، قم باستخدام بوتنا المتطور على مدار الساعة، تستطيع تطوير سيرفرك حتى يكون اجمل و اتقن بكثير.</p>
+    <a href="https://discord.com/oauth2/authorize?client_id=1458967029510832169&permissions=8&integration_type=0&scope=bot" class="btn-main">
+        <span data-key="addBotBtn">إضافة البوت</span> <i class="fas fa-robot"></i>
+    </a>
+    
+    <div style="margin-top: 50px;" id="homeFeats"></div>
+</section>
+
+<section id="about" class="content-section">
+    <h1 class="glow-text" data-key="navAbout">من نحن؟</h1>
+    <div class="f-card" data-key="aboutContent"></div>
+</section>
+
+<section id="rules" class="content-section">
+    <h1 class="glow-text" data-key="navRules">القوانين</h1>
+    <div class="f-card" id="rulesContainer" style="padding: 0;"></div>
+</section>
+
+<div class="side-menu" id="sideMenu">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <span class="glow-text">PRIME STUDIO</span>
+        <div onclick="toggleMenu()" style="cursor:pointer; font-size: 26px;">✕</div>
+    </div>
+    <div class="menu-item" onclick="showPage('home')"><span data-key="navHome">الرئيسية</span><i class="fas fa-home"></i></div>
+    <div class="menu-item" onclick="showPage('about')"><span data-key="navAbout">من نحن؟</span><i class="fas fa-info-circle"></i></div>
+    <div class="menu-item" onclick="showPage('rules')"><span data-key="navRules">القوانين</span><i class="fas fa-gavel"></i></div>
+    <a href="https://discord.gg/3wxxXYdMYw" class="menu-item"><span data-key="navSupport">الدعم الفني</span><i class="fas fa-headset"></i></a>
+
+    <div class="lang-trigger" onclick="document.getElementById('lbox').classList.toggle('active')">
+        <span id="curLangDisplay">Language / العربية 🇸🇦</span>
+        <i class="fas fa-chevron-down"></i>
+    </div>
+    <div class="lang-dropdown" id="lbox">
+        <div class="lang-opt" onclick="setLanguage('ar')">🇸🇦 العربية</div>
+        <div class="lang-opt" onclick="setLanguage('en')">🇺🇸 English</div>
+    </div>
+</div>
+
+<script>
+    const langData = {
+        ar: {
+            homeTitle: "Invite Bot",
+            homeDesc: "استمتع بأداء فائق و سريع، قم باستخدام بوتنا المتطور على مدار الساعة، تستطيع تطوير سيرفرك حتى يكون اجمل و اتقن بكثير.",
+            addBotBtn: "إضافة البوت",
+            navHome: "الرئيسية", navAbout: "من نحن؟", navRules: "القوانين", navSupport: "الدعم الفني",
+            curL: "Language / العربية 🇸🇦",
+            aboutContent: `<p>فريق <strong>PRIME STUDIO</strong> يسعى دائماً لتقديم أفضل البوتات والخدمات البرمجية بجودة عالية وأداء مستقر.</p>`,
+            feats: [
+                {icon: "fas fa-headset", t: "سوبورت 24/7", d: "نحن هنا من أجلك دائماً؛ فريق الدعم متواجد على مدار الساعة للإجابة على استفساراتك وحل مشاكلك فوراً."},
+                {icon: "fas fa-tools", t: "توفير لوازم", d: "توفير كل ما يخصك داخل سيرفر مثل (الترحيب، تكت، حماية، إلخ...) لجعل سيرفرك متكاملاً."},
+                {icon: "fas fa-shield-alt", t: "حماية سيرفرك", d: "جدران نارية متطورة تحمي مجتمعك من محاولات التخريب والإختراق على مدار الساعة."}
+            ],
+            rules: [
+                "الاحترام المتبادل هو أساس وجودنا هنا.",
+                "يمنع منعاً باتاً نشر الروابط أو الترويج لسيرفرات أخرى.",
+                "الدعم الفني يتم حصراً عبر نظام التذاكر لضمان جودة الخدمة.",
+                "يمنع استغلال أي ثغرات برمجية في أنظمة البوت.",
+                "نشر المحتوى غير اللائق يؤدي للحظر الفوري."
+            ]
+        },
+        en: {
+            homeTitle: "Invite Bot",
+            homeDesc: "Enjoy super fast performance with our advanced bot available 24/7 to make your server perfect.",
+            addBotBtn: "Add Bot",
+            navHome: "Home", navAbout: "About Us", navRules: "Rules", navSupport: "Support",
+            curL: "Language / English 🇺🇸",
+            aboutContent: `<p><strong>PRIME STUDIO</strong> team provides high-quality bots and stable programming services.</p>`,
+            feats: [
+                {icon: "fas fa-headset", t: "24/7 Support", d: "We are always here for you; our support team is available around the clock to answer your queries and solve issues."},
+                {icon: "fas fa-tools", t: "Supplies Provision", d: "Providing everything you need for your server (Welcome, Ticket, Protection, etc.) to make it complete."},
+                {icon: "fas fa-shield-alt", t: "Server Protection", d: "Advanced firewalls protect your community from raid and hacking attempts 24/7."}
+            ],
+            rules: [
+                "Mutual respect is our foundation.",
+                "Posting external links or promoting other servers is strictly forbidden.",
+                "Technical support is only via the ticket system.",
+                "Exploiting any software bugs in the bot systems is prohibited.",
+                "Posting inappropriate content results in an immediate ban."
+            ]
+        }
+    };
+
+    function setLanguage(lang) {
+        const data = langData[lang];
+        document.getElementById('curLangDisplay').innerText = data.curL;
+        document.body.dir = (lang === 'ar') ? 'rtl' : 'ltr';
+        if(lang === 'en') document.body.classList.add('ltr'); else document.body.classList.remove('ltr');
+        
+        document.querySelectorAll('[data-key]').forEach(el => {
+            const key = el.getAttribute('data-key');
+            if(data[key]) el.innerHTML = data[key];
+        });
+
+        document.getElementById('homeFeats').innerHTML = data.feats.map(f => `
+            <div class="f-card">
+                <i class="${f.icon}"></i>
+                <h3>${f.t}</h3>
+                <p>${f.d}</p>
+            </div>
+        `).join('');
+
+        document.getElementById('rulesContainer').innerHTML = data.rules.map((r, i) => `
+            <div class="rule-item"><span class="rule-num">${i+1}</span><div>${r}</div></div>
+        `).join('');
+
+        document.getElementById('lbox').classList.remove('active');
+    }
+
+    function toggleMenu() { document.getElementById('sideMenu').classList.toggle('active'); }
+    function showPage(p) {
+        document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+        document.getElementById(p).classList.add('active');
+        toggleMenu(); window.scrollTo(0,0);
+    }
+
+    setLanguage('ar');
+
+    const canvas = document.getElementById('snow-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    let flakes = [];
+    for(let i=0; i<100; i++) flakes.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*2, d: Math.random()*1});
+    function draw() {
+        ctx.clearRect(0,0,canvas.width, canvas.height);
+        ctx.fillStyle = "rgba(255, 255, 255, 0.8)";
+        ctx.beginPath();
+        flakes.forEach(f => { ctx.moveTo(f.x, f.y); ctx.arc(f.x, f.y, f.r, 0, Math.PI*2); });
+        ctx.fill();
+        flakes.forEach(f => { f.y += f.d + 1; if(f.y > canvas.height) f.y = -10; });
+    }
+    setInterval(draw, 30);
+</script>
+</body>
+</html>
